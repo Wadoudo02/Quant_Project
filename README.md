@@ -1,6 +1,8 @@
 # 📊 Quantitative Finance Projects
 
-Welcome to my Quantitative Finance portfolio. This repository contains a collection of projects developed both as part of a structured Quant course and through my own independent learning. These projects reflect my continued efforts to build a strong foundation in quantitative analysis, financial modelling, and Python programming following the completion of my Master’s project at Imperial College London.
+Welcome to my Quantitative Finance portfolio! 
+
+This repository contains a collection of projects developed both as part of a structured Quant course and through my own independent learning. These projects reflect my continued efforts to build a strong foundation in quantitative analysis, financial modelling, and Python programming following the completion of my Master’s project at Imperial College London.
 
 ## 📚 About This Repository
 
@@ -57,3 +59,5 @@ Upcoming projects will include:
 ## 📬 Get in Touch
 
 If you are a recruiter, hiring manager, or someone working in the quant or finance space, feel free to connect. I am open to internship, graduate, or research opportunities and would love to contribute to impactful, data-driven work.
+
+📎 [Connect with me on LinkedIn] (https://www.linkedin.com/in/wadoud-charbak/)
