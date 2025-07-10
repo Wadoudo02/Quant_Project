@@ -21,7 +21,7 @@ def wiener_process(dt=0.1, x0=0, n=1000):
 
 def plot_process(t, W):
     plt.plot(t, W)
-    plt.xlabel('Time(t)')
+    plt.xlabel('Time (t)')
     plt.ylabel('Wiener Process W(t)')
     plt.title('Wiener Process')
     plt.show()
