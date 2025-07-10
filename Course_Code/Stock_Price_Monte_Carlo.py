@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-NUM_OF_SIMULATIONS = 1000
+NUM_OF_SIMULATIONS = 10000
 
 
-def stock_monte_carlo(S0, mu, sigma, N=252):
+def stock_monte_carlo(S0, mu, sigma, N=252): # 252 trading days in a year
 
     result = []
 
