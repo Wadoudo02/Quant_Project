@@ -59,7 +59,7 @@ print("--- Improving Approximation with More Points ---")
 true_area = np.pi
 print(f"True Area of Circle (π * 1^2): {true_area:.6f}\n")
 
-num_points_list = [100, 1_000, 10_000, 100_000, 1_000_000, 1_000_000_000]
+num_points_list = [100, 1_000, 10_000, 100_000, 1_000_000] #, 1_000_000_000]
 
 for n in num_points_list:
     est_area, _, _ = estimate_circle_area(n)
