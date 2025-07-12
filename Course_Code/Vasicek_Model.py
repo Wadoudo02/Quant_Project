@@ -23,7 +23,6 @@ def plot_model(t, r):
     plt.show()
 
 
-if __name__ == '__main__':
 
-    time, data = vasicek_model(1.3, 0.9, 1.4, 0.05)
-    plot_model(time, data)
+time, data = vasicek_model(1.3, 0.9, 1.4, 0.05)
+plot_model(time, data)
