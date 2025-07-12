@@ -24,5 +24,5 @@ def plot_model(t, r):
 
 
 
-time, data = vasicek_model(1.3, 0.9, 1.4, 0.05)
+time, data = vasicek_model(0, 100, 5, 10)
 plot_model(time, data)
