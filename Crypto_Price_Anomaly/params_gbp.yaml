@@ -1,0 +1,44 @@
+# params_gbp.yaml  – quote currency switched to GBP (£)
+
+project:
+  name: Crypto Price Anomaly MVP (GBP)
+  version: 0.1.0
+
+assets:                     # pairs that trade natively in GBP on Binance
+  - symbol: BTC/GBP
+    exchange: binance
+    type: spot
+  - symbol: ETH/GBP
+    exchange: binance
+    type: spot
+
+quote_override: GBP         # downstream code can switch symbols programmatically
+
+# Data frequency config
+bar_interval: "30m"
+start_date: "2022-01-01"
+end_date: null
+
+# Feature parameters
+return_col: log_return
+zscore:
+  lookback_bars: 96
+  threshold: 2.5
+
+# Strategy parameters
+mode: follow
+side: long_only
+hold_bars: 12
+max_positions: 1
+
+# Costs (Binance UK spot fees are usually 10 bps maker / 10 bps taker – adapt!)
+fees:
+  taker_bps: 0.001           # 10 bps per side
+  slippage_bps: 0
+
+# Local paths
+paths:
+  data_raw:   data_raw
+  data_proc:  data_proc
+  outputs:    outputs
+  logs:       logs
