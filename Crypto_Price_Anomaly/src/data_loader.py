@@ -194,8 +194,8 @@ def _write_cached(df: pd.DataFrame, path: Path) -> None:
 def get_asset_df(
     symbol: str,
     *,
-    exchange_name: str | None = None,
-    timeframe: str | None = None,
+    exchange_name: str | None = None, # means "I expect a string here, but if you don’t give me anything I’ll use None.""
+    timeframe: str | None = None, # Without | None, a type‐checker would complain “Hey, you defaulted to None but your annotation never said it could be None!”
     start_dt: datetime | None = None,
     end_dt: datetime | None = None,
     force_refresh: bool = False,
