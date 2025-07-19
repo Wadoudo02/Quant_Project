@@ -33,6 +33,19 @@ from typing import Dict, List
 import ccxt
 import pandas as pd
 
+# --------------------------------------------------------------------------- #
+# Timeframe alias mapping (user‑friendly → CCXT native)
+# --------------------------------------------------------------------------- #
+_TIMEFRAME_ALIASES: Dict[str, str] = {
+    "1min": "1m",
+    "3min": "3m",
+    "5min": "5m",
+    "15min": "15m",
+    "30min": "30m",
+    "60min": "1h",
+    "90min": "90m",
+}
+
 from .config import cfg, cfg_ns
 
 __all__ = [
@@ -89,6 +102,8 @@ def fetch_ohlcv_chunk(
     ``[timestamp, open, high, low, close, volume]``.
     """
     ex = get_exchange(exchange_name)
+    # Normalise timeframe to CCXT native string
+    timeframe = _TIMEFRAME_ALIASES.get(timeframe, timeframe)
     return ex.fetch_ohlcv(
         symbol=symbol, timeframe=timeframe, since=since_ms, limit=limit
     )
@@ -226,6 +241,8 @@ def get_asset_df(
 
     # Resolve timeframe ------------------------------------------------------
     timeframe = timeframe or cfg()["bar_interval"]
+    # Map common aliases like "1min" → "1m" before you hand off to CCXT
+    timeframe = _TIMEFRAME_ALIASES.get(timeframe, timeframe)
 
     # Check disk cache -------------------------------------------------------
     cache_path = cache_path_for(symbol, timeframe)
