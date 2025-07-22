@@ -15,7 +15,7 @@ quote_override: null  # e.g. set to GBP to switch symbols programmatically
 
 # Data frequency config
 bar_interval: "30m"
-start_date: "2022-01-01"
+start_date: "2025-01-01"
 end_date: null  # change to 1m, 5m, 1h etc
 
 # Feature parameters

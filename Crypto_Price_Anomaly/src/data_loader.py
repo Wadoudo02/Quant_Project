@@ -244,6 +244,21 @@ def get_asset_df(
     # Map common aliases like "1min" → "1m" before you hand off to CCXT
     timeframe = _TIMEFRAME_ALIASES.get(timeframe, timeframe)
 
+    # -------------------------------------------------------------------
+    # If the caller did not specify an explicit date window, fall back to
+    # the global defaults from params.yaml so every script can control the
+    # history length purely via configuration.
+    if start_dt is None:
+        raw_start = cfg().get("start_date")
+        if raw_start:
+            start_dt = pd.to_datetime(raw_start, utc=True)
+
+    if end_dt is None:
+        raw_end = cfg().get("end_date")
+        if raw_end:
+            end_dt = pd.to_datetime(raw_end, utc=True)
+    # -------------------------------------------------------------------
+
     # Check disk cache -------------------------------------------------------
     cache_path = cache_path_for(symbol, timeframe)
     if not force_refresh:

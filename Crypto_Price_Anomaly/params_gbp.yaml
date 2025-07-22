@@ -4,19 +4,19 @@ project:
   name: Crypto Price Anomaly MVP (GBP)
   version: 0.1.0
 
-assets:                     # pairs that trade natively in GBP on Binance
-  - symbol: BTC/GBP
-    exchange: binance
+assets:                     # pairs that trade natively in GBP on Kraken
+  - symbol: BTC/GBP         # ccxt expects BTC for Kraken
+    exchange: kraken
     type: spot
   - symbol: ETH/GBP
-    exchange: binance
+    exchange: kraken
     type: spot
 
 quote_override: GBP         # downstream code can switch symbols programmatically
 
 # Data frequency config
 bar_interval: "30m"
-start_date: "2022-01-01"
+start_date: "2025-01-01"
 end_date: null
 
 # Feature parameters
