@@ -1,4 +1,4 @@
-````markdown
+
 # Crypto Price Anomaly
 
 *Quant-research sandbox that tests whether sudden positive return shocks in BTC and ETH keep running for a few more bars.*
