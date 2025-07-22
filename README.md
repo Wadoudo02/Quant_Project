@@ -31,7 +31,15 @@ More course-based projects will be added as I continue progressing through the m
 
 These are additional projects I’ve built to strengthen and extend my understanding:
 
-These are planned and will be implimented here when ongoing  
+**Crypto Price Anomaly (MVP)**
+*a self-designed, end-to-end crypto-momentum research pipeline (BTC & ETH, 30-min bars)*
+
+* Built a **config-driven Python package** (pandas / NumPy / ccxt) that auto-pulls Binance OHLCV data, engineers Z-score anomaly features, generates trading signals, and back-tests them with fee modelling and position-sizing.
+* Wrote a **lightweight back-test engine** (≈150 LOC) delivering equity curves, Sharpe, max draw-down and hit-rate, plus a one-click notebook workflow for parameter sweeps.
+* Followed **software-engineering best practice**: modular `src/`, YAML config, pre-commit (ruff + black), PyTest smoke tests, and GitHub Actions CI — green-badge ready.
+* **Data-science skillset showcased**: time-series resampling, rolling-window statistics, anomaly detection, vectorised PnL attribution, matplotlib visualisation.
+* Extension roadmap prepared (adaptive thresholds, volume confirmation, live paper-trading loop), demonstrating forward-thinking project management and product mindset.
+ 
 
 ## 💡 Why I Built This
 
