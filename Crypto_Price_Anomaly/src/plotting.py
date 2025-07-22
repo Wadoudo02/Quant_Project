@@ -97,6 +97,6 @@ def plot_equity(
         plt.savefig(save_path, dpi=150)
 
     if show:
-        plt.show(block=False)
+        plt.show()
 
     return ax
