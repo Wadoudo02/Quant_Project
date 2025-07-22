@@ -94,7 +94,7 @@ def plot_equity(
 
     if save_path is not None:
         Path(save_path).parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path, dpi=300)
 
     if show:
         plt.show()
