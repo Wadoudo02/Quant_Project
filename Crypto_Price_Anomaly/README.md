@@ -42,7 +42,7 @@ open outputs/equity_combined.pdf # see equity curve
 
 ## Purpose
 
-This project bridges my Physics MSc, Higgs-EFT thesis and KAUST acceleration work by applying the same statistical toolkit to markets.
+This project bridges my Physics MSci, Higgs-EFT thesis and KAUST acceleration work by applying the same statistical toolkit to markets.
 It sharpens my understanding of finance and systematic research while demonstrating the clean engineering habits a quant seat demands.
 
 ---
@@ -63,11 +63,4 @@ crypto_price_anomaly/
 
 ## To-do / ideas
 
-Track extended work in **Track B Roadmap** – see *Crypto Price Anomaly – Speed-polish Plan.pdf* for the live-money pilot checklist.
-
----
-
-## Licence
-
-MIT
-
+There is further work that can be done here, making live trades, etc. These are all future extentions of the project should I have time.
