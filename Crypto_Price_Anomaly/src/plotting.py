@@ -19,6 +19,7 @@ plot_equity(
     save_path: str | Path | None = None,
 ) -> matplotlib.axes.Axes
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -35,8 +36,7 @@ def _ensure_series(obj: pd.Series | pd.DataFrame) -> pd.Series:
     if isinstance(obj, pd.DataFrame):
         if obj.shape[1] != 1:
             raise ValueError(
-                "DataFrame must have exactly one column (got "
-                f"{obj.shape[1]})."
+                f"DataFrame must have exactly one column (got {obj.shape[1]})."
             )
         return obj.iloc[:, 0]
     return obj

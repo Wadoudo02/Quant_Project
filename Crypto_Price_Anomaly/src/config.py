@@ -140,6 +140,4 @@ def __getattr__(name: str):  # noqa: D401, PLW012
     try:
         return data[name]
     except KeyError as exc:
-        raise AttributeError(
-            f"module {__name__!r} has no attribute {name!r}"
-        ) from exc
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc

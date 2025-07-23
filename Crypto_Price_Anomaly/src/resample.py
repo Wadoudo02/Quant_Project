@@ -2,6 +2,7 @@
 
 import pandas as pd
 
+
 def resample_ohlcv(df: pd.DataFrame, rule: str) -> pd.DataFrame:
     """
     Resample an OHLCV DataFrame to a new time interval.
@@ -29,21 +30,21 @@ def resample_ohlcv(df: pd.DataFrame, rule: str) -> pd.DataFrame:
         is dropped to ensure you only get “complete” bars.
     """
     # 1. For each new bucket of length `rule`, take the first 'open'
-    o = df['open'].resample(rule).first()
+    o = df["open"].resample(rule).first()
     # 2. The highest 'high' over that bucket
-    h = df['high'].resample(rule).max()
+    h = df["high"].resample(rule).max()
     # 3. The lowest 'low' over that bucket
-    l = df['low'].resample(rule).min()
+    low = df["low"].resample(rule).min()
     # 4. The last 'close' in the bucket
-    c = df['close'].resample(rule).last()
+    c = df["close"].resample(rule).last()
     # 5. Sum up all the 'volume' trades in the bucket
-    v = df['volume'].resample(rule).sum()
+    v = df["volume"].resample(rule).sum()
 
     # 6. Concatenate into one DataFrame
-    out = pd.concat([o, h, l, c, v], axis=1)
-    out.columns = ['open', 'high', 'low', 'close', 'volume']
+    out = pd.concat([o, h, low, c, v], axis=1)
+    out.columns = ["open", "high", "low", "close", "volume"]
 
     # 7. Drop any row where at least one of OHLCV is NaN
     #    (e.g. incomplete first/last period)
-    out = out.dropna(how='any')
+    out = out.dropna(how="any")
     return out

@@ -7,12 +7,11 @@ import pandas as pd
 def download_data(stock, start, end):
     data = {}
     ticker = yf.download(stock, start, end)
-    data['Close'] = ticker['Close'][stock]
+    data["Close"] = ticker["Close"][stock]
     return pd.DataFrame(data)
 
 
 class ValueAtRiskMonteCarlo:
-
     def __init__(self, S, mu, sigma, c, n, iterations):
         self.S = S
         self.mu = mu
@@ -22,11 +21,13 @@ class ValueAtRiskMonteCarlo:
         self.iterations = iterations
 
     def simulation(self):
-        stock_data = np.zeros([self.iterations, 1])
         rand = np.random.normal(0, 1, [1, self.iterations])
 
         # equation for the S(t) stock price
-        stock_price = self.S * np.exp(self.n * (self.mu - 0.5 * self.sigma ** 2) + self.sigma * np.sqrt(self.n) * rand)
+        stock_price = self.S * np.exp(
+            self.n * (self.mu - 0.5 * self.sigma**2)
+            + self.sigma * np.sqrt(self.n) * rand
+        )
 
         # we have to sort the stock prices to determine the percentile
         stock_price = np.sort(stock_price)
@@ -48,18 +49,16 @@ if __name__ == "__main__":
     end_date = datetime.datetime(2017, 10, 15)
 
     # download stock related data from Yahoo Finance
-    citi = download_data('C', start_date, end_date)
+    citi = download_data("C", start_date, end_date)
 
     # we can use pct_change() to calculate daily returns
-    citi['returns'] = citi['Close'].pct_change()
+    citi["returns"] = citi["Close"].pct_change()
 
     # we can assume daily returns to be normally sidtributed: mean and variance (standard deviation)
     # can describe the process
-    mu = np.mean(citi['returns'])
-    sigma = np.std(citi['returns'])
+    mu = np.mean(citi["returns"])
+    sigma = np.std(citi["returns"])
 
     model = ValueAtRiskMonteCarlo(S, mu, sigma, c, n, iterations)
 
-    print('Value at risk with Monte-Carlo simulation: $%0.2f' % model.simulation())
-	
-	
+    print("Value at risk with Monte-Carlo simulation: $%0.2f" % model.simulation())

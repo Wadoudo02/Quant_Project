@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def estimate_circle_area(num_points: int):
     """
     Estimates the area of a circle using a Monte Carlo simulation.
@@ -59,15 +60,13 @@ print("--- Improving Approximation with More Points ---")
 true_area = np.pi
 print(f"True Area of Circle (π * 1^2): {true_area:.6f}\n")
 
-num_points_list = [100, 1_000, 10_000, 100_000, 1_000_000] #, 1_000_000_000]
+num_points_list = [100, 1_000, 10_000, 100_000, 1_000_000]  # , 1_000_000_000]
 
 for n in num_points_list:
     est_area, _, _ = estimate_circle_area(n)
     error = abs((est_area - true_area) / true_area) * 100
     print(
-        f"Points (n) = {n:<10} | "
-        f"Estimated Area = {est_area:.6f} | "
-        f"Error = {error:.4f}%"
+        f"Points (n) = {n:<10} | Estimated Area = {est_area:.6f} | Error = {error:.4f}%"
     )
 
 
@@ -80,7 +79,7 @@ _, points_inside, points_outside = estimate_circle_area(n_for_plot)
 
 # Create the plot
 fig, ax = plt.subplots(figsize=(8, 8))
-ax.set_aspect('equal', adjustable='box')
+ax.set_aspect("equal", adjustable="box")
 
 # Plot the points
 ax.scatter(
@@ -92,8 +91,10 @@ ax.scatter(
 
 # Draw the circle and the square for reference
 radius = 1.0
-circle = plt.Circle((0, 0), radius, color='black', fill=False, linewidth=2)
-square = plt.Rectangle((-radius, -radius), 2*radius, 2*radius, color='black', fill=False, linewidth=2)
+circle = plt.Circle((0, 0), radius, color="black", fill=False, linewidth=2)
+square = plt.Rectangle(
+    (-radius, -radius), 2 * radius, 2 * radius, color="black", fill=False, linewidth=2
+)
 
 ax.add_patch(circle)
 ax.add_patch(square)
@@ -103,7 +104,7 @@ plt.title(f"Monte Carlo Estimation of Circle Area (n = {n_for_plot})")
 plt.xlabel("X-coordinate")
 plt.ylabel("Y-coordinate")
 plt.legend()
-plt.grid(True, linestyle='--', alpha=0.6)
+plt.grid(True, linestyle="--", alpha=0.6)
 plt.xlim(-1.1, 1.1)
 plt.ylim(-1.1, 1.1)
 

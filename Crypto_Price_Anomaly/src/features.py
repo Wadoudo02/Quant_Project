@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 
+
 def add_log_return(
     df: pd.DataFrame,
     price_col: str = "close",
@@ -35,11 +36,11 @@ def add_rolling_stats(
     - Std dev: (analogous to noise level / volatility estimate)
     """
     mean_col = f"{col}_mean_{lookback}"
-    std_col  = f"{col}_std_{lookback}"
+    std_col = f"{col}_std_{lookback}"
 
     # .rolling().mean() and .std(ddof=0) mirror population statistics
     df[mean_col] = df[col].rolling(window=lookback).mean()
-    df[std_col]  = df[col].rolling(window=lookback).std(ddof=0)
+    df[std_col] = df[col].rolling(window=lookback).std(ddof=0)
     return df
 
 
@@ -58,6 +59,6 @@ def add_zscore(
     marking a statistically significant “shock.”
     """
     mean_col = f"{col}_mean_{lookback}"
-    std_col  = f"{col}_std_{lookback}"
+    std_col = f"{col}_std_{lookback}"
     df[out_col] = (df[col] - df[mean_col]) / df[std_col]
     return df

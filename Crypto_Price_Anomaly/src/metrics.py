@@ -10,6 +10,7 @@ Only two public helpers are exported for now:
 Both are **framework-agnostic** (pure NumPy / Pandas) so you can reuse them in
 notebooks or future live-trading code without extra dependencies.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -28,7 +29,7 @@ def _infer_periods_per_year(idx: pd.Index) -> float:
     to 252 (≈ trading days per year) which is the industry-standard fallback.
     """
     if not isinstance(idx, pd.DatetimeIndex) or len(idx) < 3:
-        return 252.0       # sensible default for daily data
+        return 252.0  # sensible default for daily data
 
     # Median time delta between consecutive bars
     median_step = idx.to_series().diff().median()
@@ -95,9 +96,7 @@ def sharpe_ratio(
 # --------------------------------------------------------------------------- #
 # Public: absolute & percentage maximum drawdown
 # --------------------------------------------------------------------------- #
-def max_drawdown(
-    equity: Union[pd.Series, np.ndarray]
-) -> Tuple[float, float]:
+def max_drawdown(equity: Union[pd.Series, np.ndarray]) -> Tuple[float, float]:
     """
     Calculate absolute and percentage max drawdown of an equity curve.
 
@@ -120,8 +119,8 @@ def max_drawdown(
         return 0.0, 0.0
 
     running_max = eq.cummax()
-    underwater   = running_max - eq
-    pct_under    = underwater / running_max.replace(0, np.nan)
+    underwater = running_max - eq
+    pct_under = underwater / running_max.replace(0, np.nan)
 
     abs_dd = underwater.max()
     pct_dd = pct_under.max()

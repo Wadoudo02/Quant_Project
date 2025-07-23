@@ -1,5 +1,7 @@
 # notebooks/_bootstrap.py  (create once and run in every nb)
-import sys, pathlib, importlib
+import sys
+import pathlib
+import importlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:

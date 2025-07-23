@@ -25,13 +25,13 @@ Example
 
 from __future__ import annotations
 
-import os
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
 import ccxt
 import pandas as pd
+from .config import cfg, cfg_ns
 
 # --------------------------------------------------------------------------- #
 # Timeframe alias mapping (user‑friendly → CCXT native)
@@ -46,7 +46,6 @@ _TIMEFRAME_ALIASES: Dict[str, str] = {
     "90min": "90m",
 }
 
-from .config import cfg, cfg_ns
 
 __all__ = [
     "get_exchange",
@@ -67,7 +66,7 @@ def get_exchange(name: str) -> ccxt.Exchange:
     """
     Return a memoised ccxt exchange instance.
 
-    *Why?*  
+    *Why?*
     Each ccxt object maintains its own rate limiter. Re-using one object per
     process avoids blowing through the exchange’s request quota – analogous
     to re-using a single HTTP `Session` instead of opening new sockets for
@@ -123,9 +122,9 @@ def fetch_full_history(
 
     Parameters
     ----------
-    start_dt : first candle **included** (UTC, aware).  
+    start_dt : first candle **included** (UTC, aware).
                ``None`` → let Binance give us the earliest it can.
-    end_dt   : last candle **included** (UTC, aware).  
+    end_dt   : last candle **included** (UTC, aware).
                ``None`` → up to *now*.
 
     Notes
@@ -144,9 +143,7 @@ def fetch_full_history(
 
     all_rows: List[list] = []
     while True:
-        chunk = fetch_ohlcv_chunk(
-            symbol, exchange_name, timeframe, since_ms=since_ms
-        )
+        chunk = fetch_ohlcv_chunk(symbol, exchange_name, timeframe, since_ms=since_ms)
         if not chunk:
             break
 
@@ -209,8 +206,12 @@ def _write_cached(df: pd.DataFrame, path: Path) -> None:
 def get_asset_df(
     symbol: str,
     *,
-    exchange_name: str | None = None, # means "I expect a string here, but if you don’t give me anything I’ll use None.""
-    timeframe: str | None = None, # Without | None, a type‐checker would complain “Hey, you defaulted to None but your annotation never said it could be None!”
+    exchange_name: (
+        str | None
+    ) = None,  # means "I expect a string here, but if you don’t give me anything I’ll use None.""
+    timeframe: (
+        str | None
+    ) = None,  # Without | None, a type‐checker would complain “Hey, you defaulted to None but your annotation never said it could be None!”
     start_dt: datetime | None = None,
     end_dt: datetime | None = None,
     force_refresh: bool = False,

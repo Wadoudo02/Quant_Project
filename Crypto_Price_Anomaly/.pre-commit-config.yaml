@@ -1,0 +1,19 @@
+# .pre-commit-config.yaml  (store at project root)
+repos:
+  # 1️⃣ Ruff — linter *and* formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.4            # Pin a specific tag
+    hooks:
+      - id: ruff-check      # lint; add "--fix" to auto-apply
+        args: [--fix]
+        exclude: "^notebooks/.*"
+      - id: ruff-format     # fast formatter (black-compatible)
+        exclude: "^notebooks/.*"
+
+  # 2️⃣ Black — double-check formatting consistency
+  - repo: https://github.com/psf/black
+    rev: 24.4.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        exclude: "^notebooks/.*"

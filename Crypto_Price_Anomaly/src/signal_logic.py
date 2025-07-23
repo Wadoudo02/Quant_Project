@@ -1,6 +1,7 @@
 import pandas as pd
 from src.config import cfg
 
+
 def signal_from_zscore(
     df: pd.DataFrame,
     z_col: str = None,
@@ -37,28 +38,28 @@ def signal_from_zscore(
     # Determine z-score column name
     if z_col is None:
         # Prefer the generic 'zscore' column added by add_zscore
-        if 'zscore' in df.columns:
-            z_col = 'zscore'
+        if "zscore" in df.columns:
+            z_col = "zscore"
         else:
-            return_col = cfg_dict.get('return_col', 'log_return')
+            return_col = cfg_dict.get("return_col", "log_return")
             z_col = f"{return_col}_zscore"
 
     # Determine threshold value
     if threshold is None:
-        threshold = cfg_dict.get('zscore', {}).get('threshold', 2.5)
+        threshold = cfg_dict.get("zscore", {}).get("threshold", 2.5)
 
     # Determine mode
     if mode is None:
-        mode = cfg_dict.get('mode', 'follow')
+        mode = cfg_dict.get("mode", "follow")
 
     # Sanity checks
     if z_col not in df.columns:
         raise KeyError(f"DataFrame must contain column '{z_col}'")
-    if mode not in ('follow', 'fade'):
+    if mode not in ("follow", "fade"):
         raise ValueError(f"mode must be 'follow' or 'fade', got {mode!r}")
 
     # Build raw boolean mask
-    if mode == 'follow':
+    if mode == "follow":
         raw_sig = df[z_col] >= threshold
     else:  # fade negative shocks
         raw_sig = df[z_col] <= -threshold

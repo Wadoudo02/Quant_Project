@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 
+
 def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
     """Run the full pipeline for a single asset symbol."""
     sym: str = asset_cfg["symbol"]
@@ -60,10 +61,10 @@ def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
     # ---------------------------------------------------------------
     # Pull global start/end dates from params.yaml (if provided)
     start_date_raw = cfg.get("start_date")
-    end_date_raw   = cfg.get("end_date")
+    end_date_raw = cfg.get("end_date")
 
     start_dt = pd.to_datetime(start_date_raw, utc=True) if start_date_raw else None
-    end_dt   = pd.to_datetime(end_date_raw,   utc=True) if end_date_raw   else None
+    end_dt = pd.to_datetime(end_date_raw, utc=True) if end_date_raw else None
     # ---------------------------------------------------------------
 
     paths_cfg = cfg.get("paths", {})
@@ -71,7 +72,9 @@ def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
     cache_dir.mkdir(parents=True, exist_ok=True)
     cache_path = cache_dir / f"{sym.replace('/', '')}_{interval}.parquet"
 
-    logger.info("[%-4s] loading %s with interval=%s (cache: %s)", exc, sym, interval, cache_path)
+    logger.info(
+        "[%-4s] loading %s with interval=%s (cache: %s)", exc, sym, interval, cache_path
+    )
     df: pd.DataFrame = get_asset_df(
         sym,
         exchange_name=exc,
@@ -89,8 +92,7 @@ def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
     # If trimming wiped everything, try a cache refresh once
     if df.empty:
         logger.warning(
-            "Cached data for %s does not cover %s → %s. "
-            "Refreshing cache and retrying…",
+            "Cached data for %s does not cover %s → %s. Refreshing cache and retrying…",
             sym,
             start_dt.date() if start_dt else "beginning",
             end_dt.date() if end_dt else "today",
@@ -147,7 +149,7 @@ def main(args: argparse.Namespace) -> None:
     paths_cfg = cfg.get("paths", {})
     out_dir = Path(paths_cfg.get("outputs", "outputs"))
     out_dir.mkdir(parents=True, exist_ok=True)
-    
+
     combined_equity: pd.Series | None = None
     all_trades: list[pd.DataFrame] = []
 
@@ -174,10 +176,13 @@ def main(args: argparse.Namespace) -> None:
                 show=args.show_plots,
                 save_path=save_path,
             )
-            
 
     # Portfolio‑level plot --------------------------------------------------
-    if (args.show_plots or args.save_plots) and combined_equity is not None and len(asset_cfgs) > 1:
+    if (
+        (args.show_plots or args.save_plots)
+        and combined_equity is not None
+        and len(asset_cfgs) > 1
+    ):
         save_path = (out_dir / "equity_combined.pdf") if args.save_plots else None
         plot_equity(
             combined_equity,
@@ -186,9 +191,10 @@ def main(args: argparse.Namespace) -> None:
             save_path=save_path,
         )
 
-
     if all_trades:
-        pd.concat(all_trades, ignore_index=True).to_csv(out_dir / "trades.csv", index=False)
+        pd.concat(all_trades, ignore_index=True).to_csv(
+            out_dir / "trades.csv", index=False
+        )
     if combined_equity is not None:
         combined_equity.to_csv(out_dir / "equity_curve.csv")
 
@@ -196,7 +202,9 @@ def main(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run the Crypto Price Anomaly MVP end‑to‑end.")
+    parser = argparse.ArgumentParser(
+        description="Run the Crypto Price Anomaly MVP end‑to‑end."
+    )
     parser.add_argument(
         "--assets",
         default="all",
