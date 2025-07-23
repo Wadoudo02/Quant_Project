@@ -3,6 +3,7 @@
 
 ![CI](https://github.com/Wadoudo02/Quant_Project/actions/workflows/ci.yml/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
 
 *Quant-research sandbox that tests whether sudden positive return shocks in BTC and ETH keep running for a few more bars.*
 
