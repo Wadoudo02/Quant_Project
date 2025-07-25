@@ -42,6 +42,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from xgboost import XGBRegressor
+from math import sqrt
 
 from .config import cfg
 
@@ -117,7 +118,7 @@ def train_model(
 
     if X_val is not None:
         y_pred = model.predict(X_val)
-        rmse = float(mean_squared_error(y_val, y_pred, squared=False))
+        rmse = float(sqrt(mean_squared_error(y_val, y_pred)))
     else:
         rmse = float("nan")
 
