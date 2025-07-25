@@ -37,7 +37,7 @@ import pandas as pd
 import numpy as np
 
 from .config import cfg
-from .metrics import sharpe_ratio, max_drawdown
+from .metrics import sharpe_ratio, max_drawdown, compute_alpha
 
 __all__ = ["run_backtest"]
 
@@ -54,6 +54,8 @@ def run_backtest(
     predictions: pd.Series,
     returns: pd.Series,
     *,
+    benchmark_returns: pd.Series | None = None,
+    risk_free_rate: float | None = None,
     hold_days: int | None = None,
     top_n: int | None = None,
     fee_bps: float | None = None,
@@ -86,6 +88,15 @@ def run_backtest(
         of this as the unit trade size; if ``top_n=2`` you deploy
         ``2×notional`` on day one, then more as positions overlap.
 
+    benchmark_returns : pd.Series, optional
+        Benchmark returns aligned to ``returns``.  If provided, the
+        function computes Jensen’s α, β and the α t‑statistic.
+
+    risk_free_rate : float, optional
+        Per‑period (e.g. daily) risk‑free rate used when computing the
+        Sharpe ratio.  If omitted, defaults to ``backtest.risk_free_rate``
+        from ``params.yaml`` (falls back to 0.0).
+
     Returns
     -------
     dict with keys
@@ -104,6 +115,9 @@ def run_backtest(
     top_n = bt_cfg.get("top_n") if top_n is None else top_n
     fee_bps = bt_cfg.get("fee_bps") if fee_bps is None else fee_bps
     fee_rate = (fee_bps or 0) / 10_000
+    risk_free_rate = (
+        bt_cfg.get("risk_free_rate", 0.0) if risk_free_rate is None else risk_free_rate
+    )
 
     # Ensure predictions and returns align
     if not predictions.index.equals(returns.index):
@@ -169,19 +183,14 @@ def run_backtest(
 
     # Compile trade ledger into DataFrame
     trades_df = pd.DataFrame(trades)
-    if trades_df.empty:
-        metrics = {
-            "total_net_pnl": 0.0,
-            "num_trades": 0,
-            "hit_rate": np.nan,
-            "avg_trade_ret": np.nan,
-            "max_drawdown_abs": 0.0,
-            "max_drawdown_pct": 0.0,
-            "sharpe": np.nan,
-        }
-    else:
+    alpha = beta = alpha_t = np.nan
+    if not trades_df.empty:
         dd_abs, dd_pct = max_drawdown(equity_series)
         equity_diff = equity_series.diff().fillna(0.0)
+        if benchmark_returns is not None:
+            # Align benchmark with portfolio return series
+            bench = benchmark_returns.reindex(equity_diff.index).fillna(0.0)
+            alpha, beta, alpha_t = compute_alpha(equity_diff, bench)
         metrics = {
             "total_net_pnl": trades_df["net_pnl"].sum(),
             "num_trades": len(trades_df),
@@ -189,7 +198,25 @@ def run_backtest(
             "avg_trade_ret": trades_df["gross_ret"].mean(),
             "max_drawdown_abs": float(dd_abs),
             "max_drawdown_pct": float(dd_pct),
-            "sharpe": sharpe_ratio(equity_diff),
+            "sharpe": sharpe_ratio(equity_diff, risk_free_rate=risk_free_rate),
+            "alpha": alpha,
+            "beta": beta,
+            "alpha_tstat": alpha_t,
+        }
+    else:
+        metrics = {
+            "total_net_pnl": 0.0,
+            "num_trades": 0,
+            "hit_rate": np.nan,
+            "avg_trade_ret": np.nan,
+            "max_drawdown_abs": 0.0,
+            "max_drawdown_pct": 0.0,
+            "sharpe": sharpe_ratio(
+                pd.Series(dtype=float), risk_free_rate=risk_free_rate
+            ),
+            "alpha": alpha,
+            "beta": beta,
+            "alpha_tstat": alpha_t,
         }
 
     return {"trades": trades_df, "equity": equity_series, "metrics": metrics}

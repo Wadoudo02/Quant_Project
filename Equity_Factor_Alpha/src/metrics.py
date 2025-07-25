@@ -19,8 +19,9 @@ from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
-__all__ = ["sharpe_ratio", "max_drawdown"]
+__all__ = ["sharpe_ratio", "max_drawdown", "compute_alpha"]
 
 
 def _infer_periods_per_year(idx: pd.Index) -> float:
@@ -101,3 +102,40 @@ def max_drawdown(equity: Union[pd.Series, np.ndarray]) -> Tuple[float, float]:
     abs_dd = underwater.max()
     pct_dd = pct_under.max()
     return float(abs_dd), float(0.0 if pd.isna(pct_dd) else pct_dd)
+
+
+def compute_alpha(
+    portfolio_returns: Union[pd.Series, np.ndarray],
+    benchmark_returns: Union[pd.Series, np.ndarray],
+) -> Tuple[float, float, float]:
+    """
+    Estimate Jensen’s α and β by regressing portfolio returns on a benchmark.
+
+    Parameters
+    ----------
+    portfolio_returns : pd.Series or 1‑D np.ndarray
+        Periodic arithmetic returns of the strategy.
+    benchmark_returns : pd.Series or 1‑D np.ndarray
+        Synchronous benchmark returns (e.g. a morally‑compliant equity index).
+
+    Returns
+    -------
+    (alpha, beta, alpha_t) : tuple[float, float, float]
+        alpha      – intercept of the regression (Jensen’s α) per period.
+        beta       – slope versus the benchmark.
+        alpha_t    – t‑statistic of the α coefficient.
+    """
+    # Ensure aligned pandas Series
+    p = pd.Series(portfolio_returns).dropna()
+    b = pd.Series(benchmark_returns).dropna()
+    p, b = p.align(b, join="inner")
+    if p.empty:
+        return np.nan, np.nan, np.nan
+
+    X = sm.add_constant(b)  # adds intercept
+    model = sm.OLS(p, X).fit()
+
+    alpha = float(model.params["const"])
+    beta = float(model.params.iloc[1])
+    alpha_t = float(model.tvalues["const"])
+    return alpha, beta, alpha_t

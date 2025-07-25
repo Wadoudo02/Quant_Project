@@ -26,8 +26,9 @@ from typing import Any
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-__all__ = ["plot_equity"]
+__all__ = ["plot_equity", "plot_returns_vs_benchmark"]
 
 
 def _ensure_series(obj: pd.Series | pd.DataFrame) -> pd.Series:
@@ -49,6 +50,7 @@ def plot_equity(
     figsize: tuple[int, int] = (10, 5),
     show: bool = True,
     save_path: str | Path | None = None,
+    metrics: dict[str, float] | None = None,
 ) -> plt.Axes:
     """
     Plot an equity curve with sensible defaults.
@@ -68,6 +70,8 @@ def plot_equity(
     save_path
         If given, save the figure (filetype inferred from suffix).  PNG is
         recommended for light file sizes.
+    metrics
+        Optional dictionary of metric names and values to display on the plot.
 
     Returns
     -------
@@ -87,8 +91,78 @@ def plot_equity(
     ax.set_xlabel("Date")
     ax.set_ylabel("Cumulative PnL (base currency)")
     ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+    if metrics is not None:
+        text = "\n".join(f"{k}: {v:.4f}" for k, v in metrics.items() if pd.notna(v))
+        ax.text(
+            0.02,
+            0.98,
+            text,
+            transform=ax.transAxes,
+            va="top",
+            ha="left",
+            fontsize=8,
+            bbox=dict(facecolor="white", alpha=0.6, edgecolor="none"),
+        )
     if created_fig:
         fig.tight_layout()
+    if save_path is not None:
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save_path, dpi=300)
+    if show:
+        plt.show()
+    return ax
+
+
+def plot_returns_vs_benchmark(
+    strategy: pd.Series,
+    benchmark: pd.Series,
+    *,
+    alpha: float | None = None,
+    beta: float | None = None,
+    ax: Any | None = None,
+    figsize: tuple[int, int] = (6, 6),
+    show: bool = True,
+    save_path: str | Path | None = None,
+) -> plt.Axes:
+    """
+    Scatter plot of strategy versus benchmark returns.
+
+    Parameters
+    ----------
+    strategy, benchmark
+        Synchronous periodic returns; will be aligned on their indices.
+    alpha, beta
+        Pre‑computed regression coefficients to annotate (optional).
+    """
+    s, b = pd.Series(strategy).align(pd.Series(benchmark), join="inner")
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    ax.scatter(b, s, s=10, alpha=0.6)
+    # Fit line
+    if len(s) >= 2:
+        m, c = np.polyfit(b, s, 1)
+        xs = np.linspace(b.min(), b.max(), 100)
+        ax.plot(xs, m * xs + c, linewidth=1.2)
+    ax.set_xlabel("Benchmark returns")
+    ax.set_ylabel("Strategy returns")
+    ax.set_title("Strategy vs Benchmark – α/β")
+    ann = []
+    if alpha is not None and pd.notna(alpha):
+        ann.append(f"α = {alpha:.4f}")
+    if beta is not None and pd.notna(beta):
+        ann.append(f"β = {beta:.2f}")
+    if ann:
+        ax.text(
+            0.05,
+            0.95,
+            "\n".join(ann),
+            transform=ax.transAxes,
+            va="top",
+            ha="left",
+            fontsize=9,
+            bbox=dict(facecolor="white", alpha=0.6, edgecolor="none"),
+        )
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
     if save_path is not None:
         Path(save_path).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=300)

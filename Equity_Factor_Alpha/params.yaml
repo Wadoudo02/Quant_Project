@@ -40,6 +40,7 @@ backtest:
   hold_days: 5
   top_n: 2
   fee_bps: 0.0  # basis points per side (set to >0 to model commissions)
+  risk_free_rate: 0.0  # per‑period (daily) RF used in Sharpe ratio
 
 # Paths relative to the repository root.  These can be customised
 # if you wish to store data or outputs in a different location.

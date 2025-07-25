@@ -56,7 +56,7 @@ from src.data_loader import get_all_equities
 from src.features import add_returns, add_rolling_features, prepare_feature_matrix
 from src.model import train_model, predict
 from src.backtest import run_backtest
-from src.plotting import plot_equity
+from src.plotting import plot_equity, plot_returns_vs_benchmark
 
 # ---------------------------------------------------------------------------
 logging.basicConfig(
@@ -139,6 +139,9 @@ def main(args: argparse.Namespace) -> None:
         return_col=p["features"]["return_col"],
     )
 
+    # Equal‑weight average return across all tickers serves as a benchmark
+    benchmark = y.groupby(level=0).mean()
+
     # Train model
     logger.info("Training XGBoost model…")
     model, rmse = train_model(X, y, params=p["model"], test_size=0.2)
@@ -155,6 +158,8 @@ def main(args: argparse.Namespace) -> None:
     results = run_backtest(
         predictions=preds,
         returns=y,
+        benchmark_returns=benchmark,
+        risk_free_rate=p["backtest"].get("risk_free_rate", 0.0),
         hold_days=p["backtest"]["hold_days"],
         top_n=p["backtest"]["top_n"],
         fee_bps=p["backtest"]["fee_bps"],
@@ -164,6 +169,13 @@ def main(args: argparse.Namespace) -> None:
     trades = results["trades"]
     metrics = results["metrics"]
     logger.info("Back‑test metrics: %s", metrics)
+    logger.info(
+        "Alpha %.4f (t=%.2f) | Beta %.2f | Sharpe %.2f",
+        metrics["alpha"],
+        metrics["alpha_tstat"],
+        metrics["beta"],
+        metrics["sharpe"],
+    )
 
     # Save results
     out_dir = Path(p["paths"]["outputs"])
@@ -179,6 +191,17 @@ def main(args: argparse.Namespace) -> None:
             title="Equity Curve – Combined Portfolio",
             show=args.show_plots,
             save_path=save_path,
+            metrics=metrics,
+        )
+    if args.show_plots or args.save_plots:
+        scatter_path = (out_dir / "alpha_beta_scatter.png") if args.save_plots else None
+        plot_returns_vs_benchmark(
+            equity.diff().dropna(),
+            benchmark.reindex(equity.index).fillna(0.0),
+            alpha=metrics["alpha"],
+            beta=metrics["beta"],
+            show=args.show_plots,
+            save_path=scatter_path,
         )
     logger.info("Finished – results saved to %s", out_dir.resolve())
 
