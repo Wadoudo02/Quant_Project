@@ -187,17 +187,20 @@ def run_backtest(
 
     # Build equity curve: cumulative sum of daily PnL
     equity_series = pd.Series(daily_pnl).cumsum().sort_index().rename("equity")
+    # Convert cumulative PnL into percentage returns so risk metrics use like‑for‑like units
+    equity_returns = (
+        equity_series.pct_change().replace([np.inf, -np.inf], np.nan).fillna(0.0)
+    )
 
     # Compile trade ledger into DataFrame
     trades_df = pd.DataFrame(trades)
     alpha = beta = alpha_t = np.nan
     if not trades_df.empty:
         dd_abs, dd_pct = max_drawdown(equity_series)
-        equity_diff = equity_series.diff().fillna(0.0)
         if benchmark_returns is not None:
             # Align benchmark with portfolio return series
-            bench = benchmark_returns.reindex(equity_diff.index).fillna(0.0)
-            alpha, beta, alpha_t = compute_alpha(equity_diff, bench)
+            bench = benchmark_returns.reindex(equity_returns.index).fillna(0.0)
+            alpha, beta, alpha_t = compute_alpha(equity_returns, bench)
         metrics = {
             "total_net_pnl": trades_df["net_pnl"].sum(),
             "num_trades": len(trades_df),
@@ -205,7 +208,7 @@ def run_backtest(
             "avg_trade_ret": trades_df["gross_ret"].mean(),
             "max_drawdown_abs": float(dd_abs),
             "max_drawdown_pct": float(dd_pct),
-            "sharpe": sharpe_ratio(equity_diff, risk_free_rate=risk_free_rate),
+            "sharpe": sharpe_ratio(equity_returns, risk_free_rate=risk_free_rate),
             "alpha": alpha,
             "beta": beta,
             "alpha_tstat": alpha_t,
@@ -218,9 +221,7 @@ def run_backtest(
             "avg_trade_ret": np.nan,
             "max_drawdown_abs": 0.0,
             "max_drawdown_pct": 0.0,
-            "sharpe": sharpe_ratio(
-                pd.Series(dtype=float), risk_free_rate=risk_free_rate
-            ),
+            "sharpe": sharpe_ratio(equity_returns, risk_free_rate=risk_free_rate),
             "alpha": alpha,
             "beta": beta,
             "alpha_tstat": alpha_t,
