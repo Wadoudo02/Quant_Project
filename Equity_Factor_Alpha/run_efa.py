@@ -72,6 +72,10 @@ logger = logging.getLogger(__name__)
 def main(args: argparse.Namespace) -> None:
     # Load configuration
     p = cfg()
+    # Map ISO currency code to common symbol for plotting
+    _CURR_MAP = {"GBP": "£", "USD": "$", "EUR": "€", "JPY": "¥"}
+    base_currency = p.get("base_currency", "GBP").upper()
+    currency_symbol = _CURR_MAP.get(base_currency, base_currency)
     selected_assets = [a["ticker"] for a in p["assets"]]
     print(selected_assets)
     if args.assets.lower() != "all":
@@ -195,6 +199,7 @@ def main(args: argparse.Namespace) -> None:
             save_path=save_path,
             metrics=metrics,
             initial_capital=initial_capital,
+            currency_symbol=currency_symbol,
             scale=args.plot_scale,
         )
     if args.show_plots or args.save_plots:

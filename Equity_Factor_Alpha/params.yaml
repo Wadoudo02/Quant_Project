@@ -2,6 +2,9 @@ project:
   name: Equity Factor Alpha Engine
   version: 0.1.0
 
+# Base currency used for all cash amounts and PnL
+base_currency: "GBP"
+
 # List of equities to analyse.  These tickers map to the Stooq symbol
 # pattern (<ticker>.us).  Feel free to change or extend the list.
 assets:
@@ -52,3 +55,5 @@ paths:
   data_proc: data_proc
   outputs: outputs
   logs: logs
+
+

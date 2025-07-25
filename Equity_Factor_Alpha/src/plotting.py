@@ -52,6 +52,7 @@ def plot_equity(
     save_path: str | Path | None = None,
     metrics: dict[str, float] | None = None,
     initial_capital: float | None = None,
+    currency_symbol: str = "£",
     scale: str = "currency",
 ) -> plt.Axes:
     """
@@ -76,6 +77,8 @@ def plot_equity(
         Optional dictionary of metric names and values to display on the plot.
     initial_capital
         Starting portfolio capital in the same currency as *equity*. Required when ``scale="pct"``.
+    currency_symbol
+        Symbol or abbreviation to show in the y‑axis label when ``scale='currency'``.
     scale
         "currency" plots portfolio value in £ starting at *initial_capital* (if provided) or cumulative PnL otherwise.
         "pct" plots cumulative percentage return = 100 × ((initial_capital + PnL) / initial_capital − 1).
@@ -101,12 +104,8 @@ def plot_equity(
         ser_plot = 100.0 * ((initial_capital + ser) / initial_capital - 1.0)
         ylabel = "Cumulative Return (%)"
     elif scale == "currency":
-        if initial_capital is not None:
-            ser_plot = initial_capital + ser
-            ylabel = "Portfolio Value (£)"
-        else:
-            ser_plot = ser
-            ylabel = "Cumulative PnL (base currency)"
+        ser_plot = ser
+        ylabel = f"Cumulative PnL ({currency_symbol})"
     else:
         raise ValueError("scale must be 'pct' or 'currency'")
 
@@ -118,8 +117,6 @@ def plot_equity(
     lines = []
     if metrics is not None:
         lines.extend(f"{k}: {v:.4f}" for k, v in metrics.items() if pd.notna(v))
-    if scale == "currency" and initial_capital is not None:
-        lines.append(f"Initial £{initial_capital:,.0f}")
     if lines:
         ax.text(
             0.02,
