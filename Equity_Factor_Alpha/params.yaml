@@ -1,0 +1,50 @@
+project:
+  name: Equity Factor Alpha Engine
+  version: 0.1.0
+
+# List of equities to analyse.  These tickers map to the Stooq symbol
+# pattern (<ticker>.us).  Feel free to change or extend the list.
+assets:
+  - ticker: AAPL
+  - ticker: MSFT
+  - ticker: GOOGL
+  - ticker: AMZN
+  - ticker: NVDA
+
+# Data frequency and date window.  Stooq serves daily bars so the
+# interval is implicitly one day.  ISO‑formatted dates are used.
+start_date: "2023-01-01"
+end_date: null  # null → up to latest available
+
+# Feature engineering parameters.  Rolling windows are expressed in
+# trading days; e.g. 20 ≈ 1 month, 60 ≈ 3 months.  Additional
+# custom features can be added in src/features.py.
+features:
+  return_col: "returns"
+  windows: [5, 20, 60]
+
+# XGBoost model parameters.  These defaults work reasonably well on
+# small tabular data sets and can be overridden via the CLI or by
+# editing this file.
+model:
+  objective: "reg:squarederror"
+  max_depth: 3
+  learning_rate: 0.1
+  n_estimators: 200
+  subsample: 0.8
+  colsample_bytree: 0.8
+
+# Backtest parameters.  The strategy picks the top_n stocks by
+# predicted return on each day and holds them for hold_days bars.
+backtest:
+  hold_days: 5
+  top_n: 2
+  fee_bps: 0.0  # basis points per side (set to >0 to model commissions)
+
+# Paths relative to the repository root.  These can be customised
+# if you wish to store data or outputs in a different location.
+paths:
+  data_raw: data_raw
+  data_proc: data_proc
+  outputs: outputs
+  logs: logs
