@@ -13,7 +13,7 @@ assets:
 
 # Data frequency and date window.  Stooq serves daily bars so the
 # interval is implicitly one day.  ISO‑formatted dates are used.
-start_date: "2023-01-01"
+start_date: "2023-10-01"
 end_date: null  # null → up to latest available
 
 # Feature engineering parameters.  Rolling windows are expressed in
