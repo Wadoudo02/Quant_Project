@@ -10,6 +10,8 @@ assets:
   - ticker: GOOGL
   - ticker: AMZN
   - ticker: NVDA
+  - ticker: ROO
+  - ticker: ITV
 
 # Data frequency and date window.  Stooq serves daily bars so the
 # interval is implicitly one day.  ISO‑formatted dates are used.
