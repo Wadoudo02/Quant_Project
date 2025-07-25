@@ -41,6 +41,7 @@ model:
 backtest:
   hold_days: 5
   top_n: 2
+  notional: 1000 # Note initial_capital = top_n × notional
   fee_bps: 0.0  # basis points per side (set to >0 to model commissions)
   risk_free_rate: 0.0  # per‑period (daily) RF used in Sharpe ratio
 

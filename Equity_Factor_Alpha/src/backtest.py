@@ -227,4 +227,11 @@ def run_backtest(
             "alpha_tstat": alpha_t,
         }
 
-    return {"trades": trades_df, "equity": equity_series, "metrics": metrics}
+    initial_capital = top_n * notional
+
+    return {
+        "trades": trades_df,
+        "equity": equity_series,
+        "metrics": metrics,
+        "initial_capital": initial_capital,
+    }

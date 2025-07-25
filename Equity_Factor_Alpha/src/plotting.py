@@ -51,6 +51,8 @@ def plot_equity(
     show: bool = True,
     save_path: str | Path | None = None,
     metrics: dict[str, float] | None = None,
+    initial_capital: float | None = None,
+    scale: str = "currency",
 ) -> plt.Axes:
     """
     Plot an equity curve with sensible defaults.
@@ -72,6 +74,11 @@ def plot_equity(
         recommended for light file sizes.
     metrics
         Optional dictionary of metric names and values to display on the plot.
+    initial_capital
+        Starting portfolio capital in the same currency as *equity*. Required when ``scale="pct"``.
+    scale
+        "currency" plots portfolio value in £ starting at *initial_capital* (if provided) or cumulative PnL otherwise.
+        "pct" plots cumulative percentage return = 100 × ((initial_capital + PnL) / initial_capital − 1).
 
     Returns
     -------
@@ -86,17 +93,38 @@ def plot_equity(
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
         created_fig = True
-    ax.plot(ser.index, ser.values, linewidth=1.4)
+
+    # Transform depending on requested scale
+    if scale == "pct":
+        if initial_capital is None:
+            raise ValueError("initial_capital must be provided when scale='pct'")
+        ser_plot = 100.0 * ((initial_capital + ser) / initial_capital - 1.0)
+        ylabel = "Cumulative Return (%)"
+    elif scale == "currency":
+        if initial_capital is not None:
+            ser_plot = initial_capital + ser
+            ylabel = "Portfolio Value (£)"
+        else:
+            ser_plot = ser
+            ylabel = "Cumulative PnL (base currency)"
+    else:
+        raise ValueError("scale must be 'pct' or 'currency'")
+
+    ax.plot(ser_plot.index, ser_plot.values, linewidth=1.4)
     ax.set_title(title)
     ax.set_xlabel("Date")
-    ax.set_ylabel("Cumulative PnL (base currency)")
+    ax.set_ylabel(ylabel)
     ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+    lines = []
     if metrics is not None:
-        text = "\n".join(f"{k}: {v:.4f}" for k, v in metrics.items() if pd.notna(v))
+        lines.extend(f"{k}: {v:.4f}" for k, v in metrics.items() if pd.notna(v))
+    if scale == "currency" and initial_capital is not None:
+        lines.append(f"Initial £{initial_capital:,.0f}")
+    if lines:
         ax.text(
             0.02,
             0.98,
-            text,
+            "\n".join(lines),
             transform=ax.transAxes,
             va="top",
             ha="left",

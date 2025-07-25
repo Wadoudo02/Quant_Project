@@ -162,12 +162,14 @@ def main(args: argparse.Namespace) -> None:
         risk_free_rate=p["backtest"].get("risk_free_rate", 0.0),
         hold_days=p["backtest"]["hold_days"],
         top_n=p["backtest"]["top_n"],
+        notional=p["backtest"]["notional"],
         fee_bps=p["backtest"]["fee_bps"],
     )
 
     equity = results["equity"]
     trades = results["trades"]
     metrics = results["metrics"]
+    initial_capital = results.get("initial_capital")
     logger.info("Back‑test metrics: %s", metrics)
     logger.info(
         "Alpha %.4f (t=%.2f) | Beta %.2f | Sharpe %.2f",
@@ -192,6 +194,8 @@ def main(args: argparse.Namespace) -> None:
             show=args.show_plots,
             save_path=save_path,
             metrics=metrics,
+            initial_capital=initial_capital,
+            scale=args.plot_scale,
         )
     if args.show_plots or args.save_plots:
         scatter_path = (out_dir / "alpha_beta_scatter.png") if args.save_plots else None
@@ -229,5 +233,11 @@ if __name__ == "__main__":
         "--save-plots",
         action="store_true",
         help="Save equity curve plot to the outputs directory (PNG).",
+    )
+    parser.add_argument(
+        "--plot-scale",
+        choices=["currency", "pct"],
+        default="pct",
+        help="Choose 'currency' to plot portfolio value in £ starting at the initial capital, or 'pct' for percentage return (default).",
     )
     main(parser.parse_args())
