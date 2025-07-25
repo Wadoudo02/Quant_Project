@@ -57,6 +57,7 @@ from src.features import add_returns, add_rolling_features, prepare_feature_matr
 from src.model import train_model, predict
 from src.backtest import run_backtest
 from src.plotting import plot_equity
+from src.screen_filter import moral_screen
 
 # ---------------------------------------------------------------------------
 logging.basicConfig(
@@ -86,6 +87,28 @@ def main(args: argparse.Namespace) -> None:
     if not data:
         raise RuntimeError(
             "No data available for the selected tickers.  Check params.yaml or network connectivity."
+        )
+
+    # Simulated fundamentals for screening (replace with real loader later)
+    fundamentals = pd.DataFrame(
+        {
+            "debt_to_equity": [0.1, 0.5, 0.2, 0.4, 0.25],
+            "cash_to_equity": [0.2, 0.6, 0.3, 0.1, 0.1],
+            "non_compliant_income_pct": [0.01, 0.1, 0.04, 0.03, 0.02],
+        },
+        index=["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"],
+    )
+
+    # Apply moral screen
+    screened = moral_screen(fundamentals)
+    screened_tickers = set(screened.index)
+    logger.info("Tickers after moral screen: %s", sorted(screened_tickers))
+
+    # Filter price data to only those passing the screen
+    data = {t: df for t, df in data.items() if t in screened_tickers}
+    if not data:
+        raise RuntimeError(
+            "No tickers passed the moral screen. Check your ratios or data."
         )
 
     # Feature engineering
