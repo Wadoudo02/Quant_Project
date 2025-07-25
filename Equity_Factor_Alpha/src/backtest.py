@@ -134,8 +134,15 @@ def run_backtest(
         # 1. Update existing positions
         new_open_positions: List[Position] = []
         for pos in open_positions:
-            # Realised return on this day
-            ret = returns.loc[(date, pos.ticker)]
+            # Realised return for this date.  Some tickers may not trade on
+            # every calendar day (e.g. cross‑market holidays).  If we don't
+            # have a return observation for this (date, ticker) pair we treat
+            # the return as 0 % so the back‑test continues smoothly.
+            ret = (
+                returns.loc[(date, pos.ticker)]
+                if (date, pos.ticker) in returns.index
+                else 0.0
+            )
             gross_pnl = notional * ret
             # Only book PnL if we are still in the position
             daily_pnl[date] += gross_pnl
