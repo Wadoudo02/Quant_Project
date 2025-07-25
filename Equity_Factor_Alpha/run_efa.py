@@ -57,7 +57,6 @@ from src.features import add_returns, add_rolling_features, prepare_feature_matr
 from src.model import train_model, predict
 from src.backtest import run_backtest
 from src.plotting import plot_equity
-from src.screen_filter import moral_screen
 
 # ---------------------------------------------------------------------------
 logging.basicConfig(
@@ -74,21 +73,26 @@ def main(args: argparse.Namespace) -> None:
     # Load configuration
     p = cfg()
     selected_assets = [a["ticker"] for a in p["assets"]]
+    print(selected_assets)
     if args.assets.lower() != "all":
         wanted = {s.strip().upper() for s in args.assets.split(",")}
         selected_assets = [t for t in selected_assets if t.upper() in wanted]
         if not selected_assets:
             raise ValueError(f"No matching tickers found for: {wanted}")
 
+    start = p.get("start_date")
+    end = p.get("end_date")
+
     # Fetch data for each ticker
     logger.info("Loading price data for: %s", ", ".join(selected_assets))
-    data = get_all_equities(force_refresh=args.refresh)
+    data = get_all_equities(force_refresh=args.refresh, start_date=start, end_date=end)
     data = {t: df for t, df in data.items() if t in selected_assets}
     if not data:
         raise RuntimeError(
             "No data available for the selected tickers.  Check params.yaml or network connectivity."
         )
 
+    """
     # Simulated fundamentals for screening (replace with real loader later)
     fundamentals = pd.DataFrame(
         {
@@ -99,6 +103,7 @@ def main(args: argparse.Namespace) -> None:
         index=["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"],
     )
 
+    
     # Apply moral screen
     screened = moral_screen(fundamentals)
     screened_tickers = set(screened.index)
@@ -110,7 +115,7 @@ def main(args: argparse.Namespace) -> None:
         raise RuntimeError(
             "No tickers passed the moral screen. Check your ratios or data."
         )
-
+    """
     # Feature engineering
     logger.info("Computing returns and rolling features…")
     processed: dict[str, pd.DataFrame] = {}
