@@ -53,10 +53,27 @@ __all__ = ["get_equity_df", "get_all_equities"]
 # --------------------------------------------------------------------------- #
 # Internal helpers
 # --------------------------------------------------------------------------- #
+# Map portfolio base‑currency → preferred Stooq suffix when the user did not
+# specify an exchange.  The mapping is only a heuristic; users can override
+# by passing an explicit suffix such as "AAPL.us" or "ITV.uk" in params.yaml.
+_DEFAULT_SUFFIX = {"GBP": ".uk", "USD": ".us", "EUR": ".de", "JPY": ".jp"}
+
+
 def _stooq_url_for(ticker: str) -> str:
-    """Construct the Stooq download URL for a given US ticker."""
-    # Stooq uses lowercase symbols with a '.us' suffix for US stocks
-    return f"https://stooq.com/q/d/l/?s={ticker.lower()}.us&i=d"
+    """Construct the Stooq download URL for a ticker, adding a sensible default suffix when none is provided."""
+    """Construct the Stooq CSV download URL for *ticker*.
+
+    If the user omitted an exchange suffix (e.g. passed "ITV" instead of
+    "ITV.uk"), we append a default one based on
+    ``params.yaml::base_currency``.  This keeps the data loader "just working"
+    for mono‑currency universes while still allowing explicit overrides.
+    """
+    from .config import cfg  # local import to avoid circular
+
+    base_curr = cfg().get("base_currency", "USD").upper()
+    if "." not in ticker:
+        ticker += _DEFAULT_SUFFIX.get(base_curr, ".us")
+    return f"https://stooq.com/q/d/l/?s={ticker.lower()}&i=d"
 
 
 def _download_stooq_data(ticker: str) -> pd.DataFrame:
@@ -70,6 +87,7 @@ def _download_stooq_data(ticker: str) -> pd.DataFrame:
     anything to disk; caching is handled by the caller.
     """
     url = _stooq_url_for(ticker)
+
     try:
         resp = requests.get(url, timeout=30)
     except Exception as exc:
@@ -162,16 +180,37 @@ def _generate_synthetic_data(
 
 def cache_path_for(ticker: str) -> Path:
     """
-    Construct a deterministic relative cache path, e.g.
+    Construct a deterministic cache path that is segregated by *currency*.
 
-        data_raw/AAPL.csv
+    Layout example::
 
-    The root folder comes from ``paths.data_raw`` in params.yaml.
+        data_raw/
+        ├── GBP/
+        │   └── ITV.csv
+        ├── USD/
+        │   └── AAPL.csv
+        └── EUR/
+            └── SAP.csv
+
+    The currency sub‑folder is resolved from ``params.yaml::base_currency`` so the
+    same ticker can be cached under multiple base‑currency regimes without the
+    user having to manually clear anything.  Only the *folder* changes – the file
+    name (e.g. ``AAPL.csv``) is kept identical, meaning code elsewhere that
+    refers to ticker symbols remains unaffected.
     """
     p = cfg()
     root = Path(p["paths"]["data_raw"])
+
+    # Use the portfolio’s reporting currency (e.g. GBP, USD, EUR) as the
+    # sub‑directory.  If the user supplies an unexpected currency code, fall back
+    # to whatever string they provided so we always create a unique folder.
+    base_curr = p.get("base_currency", "USD").upper()
+    currency_dir = root / base_curr
+
+    # The cached file is simply <TICKER>.csv, so "AAPL", "AAPL.us", etc. all map
+    # to "AAPL.csv" inside the chosen currency directory.
     fname = f"{ticker.upper()}.csv"
-    return root / fname
+    return currency_dir / fname
 
 
 def _read_cached(path: Path) -> Optional[pd.DataFrame]:
