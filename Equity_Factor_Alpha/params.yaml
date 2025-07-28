@@ -3,7 +3,7 @@ project:
   version: 0.1.0
 
 # Base currency used for all cash amounts and PnL
-base_currency: "USD"
+base_currency: "GBP"
 
 # List of equities to analyse.  These tickers map to the Stooq symbol
 # pattern (<ticker>.us).  Feel free to change or extend the list.
