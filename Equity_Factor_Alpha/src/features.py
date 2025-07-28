@@ -175,4 +175,5 @@ def prepare_feature_matrix(
     mask = ~(X_all.isna().any(axis=1) | y_all.isna())
     X_all = X_all[mask]
     y_all = y_all[mask]
+
     return X_all, y_all
