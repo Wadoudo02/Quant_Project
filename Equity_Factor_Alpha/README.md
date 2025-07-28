@@ -1,5 +1,9 @@
 # Equity Factor Alpha Engine
 
+![CI](https://github.com/Wadoudo02/Quant_Project/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+
 A research pipeline that marries classic factor investing with an **XGBoost “alpha engine”** to forecast next‑period stock returns, then converts those forecasts into a simple, long‑only portfolio.  
 Everything is driven by a single `params.yaml` file—change the universe, features, dates *or even the quote‑currency* in one place and the rest of the code adapts automatically.
 
