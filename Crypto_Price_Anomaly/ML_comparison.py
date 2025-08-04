@@ -28,22 +28,16 @@ from src.plotting import plot_equity
 
 def main(args: argparse.Namespace) -> None:
     out_dir = Path("outputs")
-    eq_base = (
-        pd.read_csv(
-            out_dir / "equity_curve.csv",
-            index_col=0,
-            parse_dates=True,
-        )
-        .iloc[:, 0]
-    )
-    eq_ml = (
-        pd.read_csv(
-            out_dir / "equity_curve_ML.csv",
-            index_col=0,
-            parse_dates=True,
-        )
-        .iloc[:, 0]
-    )
+    eq_base = pd.read_csv(
+        out_dir / "equity_curve.csv",
+        index_col=0,
+        parse_dates=True,
+    ).iloc[:, 0]
+    eq_ml = pd.read_csv(
+        out_dir / "equity_curve_ML.csv",
+        index_col=0,
+        parse_dates=True,
+    ).iloc[:, 0]
 
     # Combined equity plot: baseline vs ML on the same axes
     ax = plot_equity(eq_base, title="Equity Curve – Baseline vs ML", show=False)
