@@ -5,3 +5,4 @@ pyyaml
 matplotlib
 polars # optional for speed
 scipy # optional for stats tests
+xgboost

@@ -57,6 +57,7 @@ def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
     mode: str = cfg["mode"]
     hold_bars: int = cfg["hold_bars"]
     fee_bps: float = cfg["fees"]["taker_bps"]
+    use_ml: bool = cfg.get("model", {}).get("use_ml", True)
 
     # ---------------------------------------------------------------
     # Pull global start/end dates from params.yaml (if provided)
@@ -126,7 +127,15 @@ def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
     )
 
     # Signal + back‑test ----------------------------------------------------
-    signal = signal_from_zscore(df, threshold=thresh, mode=mode)
+    if use_ml:
+        from src.model import MLModel  # import lazily to avoid xgboost dep
+
+        model_cfg = cfg.get("model", {})
+        ml_model = MLModel(model_cfg)
+        signal = ml_model.generate_signal(df)
+    else:
+        signal = signal_from_zscore(df, threshold=thresh, mode=mode)
+
     results = run_backtest(df, signal, hold_bars=hold_bars, fee_bps=fee_bps)
 
     logger.info("%s metrics: %s", sym, results["metrics"])
@@ -135,6 +144,7 @@ def process_asset(asset_cfg: dict, cfg: dict) -> Tuple[pd.DataFrame, dict]:
 
 def main(args: argparse.Namespace) -> None:
     cfg = load_cfg()  # now a plain dict, not a class instance
+    cfg.setdefault("model", {})["use_ml"] = args.use_ml
 
     # Choose which assets to run -------------------------------------------
     if args.assets.lower() == "all":
@@ -191,12 +201,13 @@ def main(args: argparse.Namespace) -> None:
             save_path=save_path,
         )
 
+    suffix = "_ML" if cfg.get("model", {}).get("use_ml", True) else ""
     if all_trades:
         pd.concat(all_trades, ignore_index=True).to_csv(
-            out_dir / "trades.csv", index=False
+            out_dir / f"trades{suffix}.csv", index=False
         )
     if combined_equity is not None:
-        combined_equity.to_csv(out_dir / "equity_curve.csv")
+        combined_equity.to_csv(out_dir / f"equity_curve{suffix}.csv")
 
     logger.info("Finished – results saved to %s", out_dir.resolve())
 
@@ -209,6 +220,13 @@ if __name__ == "__main__":
         "--assets",
         default="all",
         help="Comma‑separated list of symbols (e.g. 'BTC/USDT,ETH/USDT') or 'all' (default).",
+    )
+    parser.add_argument(
+        "--use-ML",
+        dest="use_ml",
+        type=lambda s: s.lower() == "true",
+        default=True,
+        help="Use machine-learning classifier (default True; pass False to disable).",
     )
     parser.add_argument(
         "--show-plots",
