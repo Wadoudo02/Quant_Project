@@ -215,9 +215,13 @@ Think of each Z‑score spike as a particle collision: we observe an energetic i
 
 ---
 
-## comparison between Ml and non-ML
+### Comparison plot between Ml and non-ML
 
-*To be added.*
+<p align="center">
+  <img src="outputs/Figures/equity_comparison.png" alt="Combined Comparison Equity Curve" width="75%">
+</p>
+
+Clearly we can see the ML model outpreforms the non-ML model. 
 
 ---
 
